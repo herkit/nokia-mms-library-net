@@ -7,22 +7,22 @@ using System.Threading.Tasks;
 
 namespace NokiaMMSLibraryNet
 {
-    public class MMBinaryWriter : BinaryWriter
+    public class MultimediaMessageBinaryWriter : BinaryWriter
     {
         private readonly Encoding _encoding;
-        public MMBinaryWriter(Stream output)
+        public MultimediaMessageBinaryWriter(Stream output)
             : base(output)
         {
             _encoding = System.Text.Encoding.Default;
         }
 
-        public MMBinaryWriter(Stream output, Encoding encoding)
+        public MultimediaMessageBinaryWriter(Stream output, Encoding encoding)
             : base(output, encoding)
         {
             _encoding = encoding;
         }
 
-        public MMBinaryWriter(Stream output, Encoding encoding, bool leaveOpen)
+        public MultimediaMessageBinaryWriter(Stream output, Encoding encoding, bool leaveOpen)
             : base(output, encoding, leaveOpen)
         {
             _encoding = encoding;

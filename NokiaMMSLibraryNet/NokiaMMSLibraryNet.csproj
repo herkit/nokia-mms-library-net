@@ -41,11 +41,11 @@
   <ItemGroup>
     <Compile Include="Extensions.cs" />
     <Compile Include="MMAddress.cs" />
-    <Compile Include="MMConstants.cs" />
-    <Compile Include="MMContent.cs" />
-    <Compile Include="MMEncoder.cs" />
-    <Compile Include="MMEncoderException.cs" />
-    <Compile Include="MMMessage.cs" />
+    <Compile Include="MultimediaMessageConstants.cs" />
+    <Compile Include="MultimediaMessageContent.cs" />
+    <Compile Include="MultimediaMessageEncoder.cs" />
+    <Compile Include="MultimediaMessageEncoderException.cs" />
+    <Compile Include="MultimediaMessage.cs" />
     <Compile Include="MMBinaryWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

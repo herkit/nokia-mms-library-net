@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace NokiaMMSLibraryNet
 {
-    public class MMEncoderException : Exception
+    public class MultimediaMessageEncoderException : Exception
     {
-        public MMEncoderException(string message)
+        public MultimediaMessageEncoderException(string message)
             :base(message)
         {
 

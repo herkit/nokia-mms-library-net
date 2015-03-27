@@ -14,11 +14,11 @@ namespace NokiaMMSLibraryNet.Tests
         [Test]
         public void Should_encode_to_expected_data()
         {
-            var mms = new MMMessage();
-            MMContent content;
+            var mms = new MultimediaMessage();
+            MultimediaMessageContent content;
             byte[] bytes;
 
-            content = new MMContent();
+            content = new MultimediaMessageContent();
             bytes = System.IO.File.ReadAllBytes(@".\TestData\megatron.smil");
             content.SetContent(bytes, 0, bytes.Length);
             content.Type = "application/smil";
@@ -26,7 +26,7 @@ namespace NokiaMMSLibraryNet.Tests
             content.ContentId = "<0000>";
             mms.AddContent(content);
 
-            content = new MMContent();
+            content = new MultimediaMessageContent();
             bytes = System.IO.File.ReadAllBytes(@".\TestData\megatron.txt");
             content.SetContent(bytes, 0, bytes.Length);
             content.Type = "text/plain";
@@ -34,7 +34,7 @@ namespace NokiaMMSLibraryNet.Tests
             content.ContentId = "<megatron.txt>";
             mms.AddContent(content);
 
-            content = new MMContent();
+            content = new MultimediaMessageContent();
             bytes = System.IO.File.ReadAllBytes(@".\TestData\megatron.png");
             content.SetContent(bytes, 0, bytes.Length);
             content.Type = "image/png";
@@ -42,7 +42,7 @@ namespace NokiaMMSLibraryNet.Tests
             content.ContentId = "<megatron.png>";
             mms.AddContent(content);
 
-            content = new MMContent();
+            content = new MultimediaMessageContent();
             bytes = System.IO.File.ReadAllBytes(@".\TestData\decepticons.png");
             content.SetContent(bytes, 0, bytes.Length);
             content.ContentLocation = "decepticons.png";
@@ -53,20 +53,20 @@ namespace NokiaMMSLibraryNet.Tests
 
             mms.Date = new DateTime(2015, 3, 26, 9, 27, 31, DateTimeKind.Local);
             mms.TransactionId = "2077.1427358451410";
-            mms.ContentType = MMConstants.CT_APPLICATION_MULTIPART_RELATED;
-            mms.MessageType = MMConstants.MESSAGE_TYPE_M_SEND_REQ;
+            mms.ContentType = MultimediaMessageConstants.CT_APPLICATION_MULTIPART_RELATED;
+            mms.MessageType = MultimediaMessageConstants.MESSAGE_TYPE_M_SEND_REQ;
             mms.PresentationId = "<0000>";
             mms.DeliveryReport = false;
             mms.Subject = "Test mms";
             mms.IncludeEncodingInSubject = true;
-            mms.From = new MMAddress("2077", MMConstants.ADDRESS_TYPE_PLMN);
+            mms.From = new MultimediaMessageAddress("2077", MultimediaMessageConstants.ADDRESS_TYPE_PLMN);
             mms.AddToAddress("+4798682185/PLMN");
-            mms.SenderVisibility = MMConstants.SENDER_VISIBILITY_SHOW;
+            mms.SenderVisibility = MultimediaMessageConstants.SENDER_VISIBILITY_SHOW;
             mms.ReadReply = false;
-            mms.MessageClass = MMConstants.MESSAGE_CLASS_PERSONAL;
-            mms.Priority = MMConstants.PRIORITY_NORMAL;
+            mms.MessageClass = MultimediaMessageConstants.MESSAGE_CLASS_PERSONAL;
+            mms.Priority = MultimediaMessageConstants.PRIORITY_NORMAL;
 
-            var encoder = new MMEncoder();
+            var encoder = new MultimediaMessageEncoder();
            
             encoder.SetMessage(mms);
             encoder.EncodeMessage();

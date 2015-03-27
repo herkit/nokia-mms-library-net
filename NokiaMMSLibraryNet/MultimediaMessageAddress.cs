@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NokiaMMSLibraryNet
 {
-    public class MMAddress
+    public class MultimediaMessageAddress
     {
 
         private string address;
@@ -15,7 +15,7 @@ namespace NokiaMMSLibraryNet
         /**  
            * Creates a new and empty MM address  
            */
-        public MMAddress()
+        public MultimediaMessageAddress()
         {
             address = null;
             type = 0;
@@ -30,7 +30,7 @@ namespace NokiaMMSLibraryNet
          * ADDRESS_TYPE_IPV6, ADDRESS_TYPE_EMAIL   
          *  
          */
-        public MMAddress(string addr, byte type)
+        public MultimediaMessageAddress(string addr, byte type)
         {
             setAddress(addr, type);
         }
@@ -38,7 +38,7 @@ namespace NokiaMMSLibraryNet
         /**  
          * Creates a new MM address initialising it to the value passed as parameter.  
          */
-        public MMAddress(MMAddress value)
+        public MultimediaMessageAddress(MultimediaMessageAddress value)
         {
             setAddress(value.address, value.type);
         }
@@ -83,9 +83,9 @@ namespace NokiaMMSLibraryNet
             {
                 switch (type)
                 {
-                    case MMConstants.ADDRESS_TYPE_PLMN: return address + "/TYPE=PLMN";
-                    case MMConstants.ADDRESS_TYPE_IPV4: return address + "/TYPE=IPv4";
-                    case MMConstants.ADDRESS_TYPE_IPV6: return address + "/TYPE=IPv6";
+                    case MultimediaMessageConstants.ADDRESS_TYPE_PLMN: return address + "/TYPE=PLMN";
+                    case MultimediaMessageConstants.ADDRESS_TYPE_IPV4: return address + "/TYPE=IPv4";
+                    case MultimediaMessageConstants.ADDRESS_TYPE_IPV6: return address + "/TYPE=IPv6";
                     default: return address;
                 }
             }

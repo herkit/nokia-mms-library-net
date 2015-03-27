@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NokiaMMSLibraryNet
 {
-    public class MMContent
+    public class MultimediaMessageContent
     {
         private string _contentLocation;
         private string m_sType = "";
@@ -157,7 +157,7 @@ namespace NokiaMMSLibraryNet
         /** 
       * Creates the object representing the content. 
       */
-        public MMContent()
+        public MultimediaMessageContent()
         {
         }
     }

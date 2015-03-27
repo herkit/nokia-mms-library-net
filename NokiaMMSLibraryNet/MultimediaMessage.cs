@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NokiaMMSLibraryNet
 {
-    public class MMMessage
+    public class MultimediaMessage
     {
         /* Internal Flags */
         private bool flagMultipartRelated = false;
@@ -40,11 +40,11 @@ namespace NokiaMMSLibraryNet
         private string hTransactionId = "";
         private string hMessageId = "";
         private byte hVersion = 0;
-        private List<MMAddress> hTo = null;
-        private List<MMAddress> hCc = null;
-        private List<MMAddress> hBcc = null;
+        private List<MultimediaMessageAddress> hTo = null;
+        private List<MultimediaMessageAddress> hCc = null;
+        private List<MultimediaMessageAddress> hBcc = null;
         private DateTime hReceivedDate;
-        private MMAddress hFrom = null;
+        private MultimediaMessageAddress hFrom = null;
         private string hSubject = "";
         private byte hMessageClass = 0;
         private DateTime hExpiry;
@@ -60,7 +60,7 @@ namespace NokiaMMSLibraryNet
         /* Others variables */
         private string multipartRelatedType = "";
         private string presentationId = "";
-        private Dictionary<string, MMContent> tableOfContents = null;
+        private Dictionary<string, MultimediaMessageContent> tableOfContents = null;
 
 
         /** 
@@ -465,9 +465,9 @@ namespace NokiaMMSLibraryNet
             }
         }
 
-        private MMAddress DecodeAddress(string value)
+        private MultimediaMessageAddress DecodeAddress(string value)
         {
-            byte type = MMConstants.ADDRESS_TYPE_UNKNOWN;
+            byte type = MultimediaMessageConstants.ADDRESS_TYPE_UNKNOWN;
             string address = value;
 
             int sep = value.IndexOf('/'); // the character "/"  
@@ -475,21 +475,21 @@ namespace NokiaMMSLibraryNet
             {
                 address = value.Substring(0, sep);
                 if (value.EndsWith("PLMN"))
-                    type = MMConstants.ADDRESS_TYPE_PLMN;
+                    type = MultimediaMessageConstants.ADDRESS_TYPE_PLMN;
                 else
                     if (value.EndsWith("IPv4"))
-                        type = MMConstants.ADDRESS_TYPE_IPV4;
+                        type = MultimediaMessageConstants.ADDRESS_TYPE_IPV4;
                     else
                         if (value.EndsWith("IPv6"))
-                            type = MMConstants.ADDRESS_TYPE_IPV6;
+                            type = MultimediaMessageConstants.ADDRESS_TYPE_IPV6;
             }
             else
             {
                 int at = address.IndexOf('@'); // the character "@"  
                 if (at >= 0)
-                    type = MMConstants.ADDRESS_TYPE_EMAIL;
+                    type = MultimediaMessageConstants.ADDRESS_TYPE_EMAIL;
             }
-            MMAddress result = new MMAddress(address, type);
+            MultimediaMessageAddress result = new MultimediaMessageAddress(address, type);
             return result;
         }
 
@@ -504,7 +504,7 @@ namespace NokiaMMSLibraryNet
          */
         public void AddToAddress(string value)
         {
-            MMAddress addr = DecodeAddress(value);
+            MultimediaMessageAddress addr = DecodeAddress(value);
             hTo.Add(addr);
             flagToAvailable = true;
         }
@@ -520,7 +520,7 @@ namespace NokiaMMSLibraryNet
          */
         public void AddCcAddress(string value)
         {
-            MMAddress addr = DecodeAddress(value);
+            MultimediaMessageAddress addr = DecodeAddress(value);
             hCc.Add(addr);
             flagCcAvailable = true;
         }
@@ -536,7 +536,7 @@ namespace NokiaMMSLibraryNet
          */
         public void AddBccAddress(string value)
         {
-            MMAddress addr = DecodeAddress(value);
+            MultimediaMessageAddress addr = DecodeAddress(value);
             hBcc.Add(addr);
             flagBccAvailable = true;
         }
@@ -577,7 +577,7 @@ namespace NokiaMMSLibraryNet
          * return a vector of MMAddress objects. 
          * 
          */
-        public List<MMAddress> To
+        public List<MultimediaMessageAddress> To
         {
             get
             {
@@ -591,7 +591,7 @@ namespace NokiaMMSLibraryNet
          * return a vector of MMAddress objects. 
          * 
          */
-        public List<MMAddress> Cc
+        public List<MultimediaMessageAddress> Cc
         {
             get
             {
@@ -605,7 +605,7 @@ namespace NokiaMMSLibraryNet
          * return a vector of MMAddress objects. 
          * 
          */
-        public List<MMAddress> Bcc
+        public List<MultimediaMessageAddress> Bcc
         {
             get
             {
@@ -650,7 +650,7 @@ namespace NokiaMMSLibraryNet
          * joe@user.org or 1.2.3.4/TYPE=IPv4. 
          * 
          */
-        public MMAddress From
+        public MultimediaMessageAddress From
         {
             get
             {
@@ -786,7 +786,7 @@ namespace NokiaMMSLibraryNet
          * param mmc is the content to add. 
          * 
          */
-        public void AddContent(MMContent mmc)
+        public void AddContent(MultimediaMessageContent mmc)
         {
             tableOfContents.Add(mmc.ContentId, mmc);
         }
@@ -796,12 +796,12 @@ namespace NokiaMMSLibraryNet
          * 
          * return the presentation content. 
          */
-        public MMContent Presentation
+        public MultimediaMessageContent Presentation
         {
             get
             {
                 if ((flagMultipartRelated == true) && (NumContents > 0) && tableOfContents.ContainsKey(presentationId))
-                    return (MMContent)tableOfContents[presentationId];
+                    return (MultimediaMessageContent)tableOfContents[presentationId];
                 else
                     return null;
             }
@@ -838,9 +838,9 @@ namespace NokiaMMSLibraryNet
          * return the content. 
          * param id is the id of the content to be retrieved. 
          */
-        public MMContent GetContent(string id)
+        public MultimediaMessageContent GetContent(string id)
         {
-            return (MMContent)tableOfContents[id];
+            return (MultimediaMessageContent)tableOfContents[id];
         }
 
         /** 
@@ -849,7 +849,7 @@ namespace NokiaMMSLibraryNet
          * return the content. 
          * param index is the index of the content to be retrieved. 
          */
-        public MMContent GetContent(int index)
+        public MultimediaMessageContent GetContent(int index)
         {
             return tableOfContents.Values.ToArray()[index];
         }
@@ -1045,12 +1045,12 @@ namespace NokiaMMSLibraryNet
             }
         }
 
-        public MMMessage()
+        public MultimediaMessage()
         {
-            tableOfContents = new Dictionary<string, MMContent>();
-            hTo = new List<MMAddress>();
-            hCc = new List<MMAddress>();
-            hBcc = new List<MMAddress>();
+            tableOfContents = new Dictionary<string, MultimediaMessageContent>();
+            hTo = new List<MultimediaMessageAddress>();
+            hCc = new List<MultimediaMessageAddress>();
+            hBcc = new List<MultimediaMessageAddress>();
         }  
     }
 }

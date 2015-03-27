@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NokiaMMSLibraryNet
 {
-    public class MMConstants
+    public class MultimediaMessageConstants
     {
         public const byte MMS_VERSION_10 = (byte)0x90; // V1.0  
   
