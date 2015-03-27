@@ -164,22 +164,22 @@ namespace NokiaMMSLibraryNet
             }
         }
 
-        public void EncodeMessage(Stream output)
+        public void EncodeMessage(MMMessage message, Stream output)
         {
             int numValue;
             String strValue;
             try
             {
-                bool m_bMultipartRelated = false;
+                bool isMultipartRelated = false;
 
                 using (MMBinaryWriter sw_Out = new MMBinaryWriter(output, System.Text.Encoding.UTF8, true))
                 {
-                    if (!m_Message.IsMessageTypeAvailable)
+                    if (!message.IsMessageTypeAvailable)
                     {
                         sw_Out.Close();
                         throw new MMEncoderException("Invalid Multimedia Message format.");
                     }
-                    byte nMessageType = m_Message.MessageType;
+                    byte nMessageType = message.MessageType;
                     switch (nMessageType)
                     {
                         case MMConstants.MESSAGE_TYPE_M_DELIVERY_IND // ---------------------------- m-delivery-ind
@@ -188,10 +188,10 @@ namespace NokiaMMSLibraryNet
                             sw_Out.Write(((byte)MMConstants.FN_MESSAGE_TYPE + FIELDBASE));
                             sw_Out.Write(nMessageType);
                             // ------------------- MESSAGE ID ------
-                            if (m_Message.IsMessageIdAvailable)
+                            if (message.IsMessageIdAvailable)
                             {
                                 sw_Out.Write(((byte)MMConstants.FN_MESSAGE_ID + FIELDBASE));
-                                sw_Out.Write(m_Message.MessageId);
+                                sw_Out.Write(message.MessageId);
                             }
                             else
                             {
@@ -200,19 +200,19 @@ namespace NokiaMMSLibraryNet
                             }
                             // ------------------- VERSION -------------
                             sw_Out.Write(((byte)MMConstants.FN_MMS_VERSION + FIELDBASE));
-                            if (!m_Message.IsVersionAvailable)
+                            if (!message.IsVersionAvailable)
                             {
                                 numValue = MMConstants.MMS_VERSION_10;
                             }
                             else
                             {
-                                numValue = m_Message.Version;
+                                numValue = message.Version;
                             }
                             sw_Out.Write(numValue);
                             // ------------------- DATE ----------------
-                            if (m_Message.IsDateAvailable)
+                            if (message.IsDateAvailable)
                             {
-                                long secs = m_Message.Date.ToUniversalTime().TotalSeconds();
+                                long secs = message.Date.ToUniversalTime().TotalSeconds();
                                 var data = EncodeMultiByteNumber(secs);
                                 if (data == null)
                                 {
@@ -228,9 +228,9 @@ namespace NokiaMMSLibraryNet
                                 }
                             }
                             // ------------------- TO ------------------
-                            if (m_Message.IsToAvailable)
+                            if (message.IsToAvailable)
                             {
-                                var sAddress = m_Message.To;
+                                var sAddress = message.To;
                                 int nAddressCount = sAddress.Count;
                                 if (sAddress == null)
                                 {
@@ -253,10 +253,10 @@ namespace NokiaMMSLibraryNet
                                 throw new MMEncoderException("No recipient specified in the Multimedia Message.");
                             }
                             // ------------------- MESSAGE-STATUS ----------------
-                            if (m_Message.IsStatusAvailable)
+                            if (message.IsStatusAvailable)
                             {
                                 sw_Out.Write(((byte)MMConstants.FN_STATUS + FIELDBASE));
-                                sw_Out.Write(m_Message.MessageStatus);
+                                sw_Out.Write(message.MessageStatus);
                             }
                             else
                             {
@@ -270,26 +270,26 @@ namespace NokiaMMSLibraryNet
                             sw_Out.Write((byte)(MMConstants.FN_MESSAGE_TYPE + FIELDBASE));
                             sw_Out.Write(nMessageType);
                             // ------------------- TRANSACTION ID ------
-                            if (m_Message.IsTransactionIdAvailable)
+                            if (message.IsTransactionIdAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_TRANSACTION_ID + FIELDBASE));
-                                sw_Out.Write(m_Message.TransactionId);
+                                sw_Out.Write(message.TransactionId);
                             }
                             // ------------------- VERSION -------------
                             sw_Out.Write((byte)(MMConstants.FN_MMS_VERSION + FIELDBASE));
-                            if (!m_Message.IsVersionAvailable)
+                            if (!message.IsVersionAvailable)
                             {
                                 numValue = MMConstants.MMS_VERSION_10;
                             }
                             else
                             {
-                                numValue = m_Message.Version;
+                                numValue = message.Version;
                             }
                             sw_Out.Write((byte)numValue);
                             // ------------------- DATE ----------------
-                            if (m_Message.IsDateAvailable)
+                            if (message.IsDateAvailable)
                             {
-                                long secs = m_Message.Date.ToUniversalTime().TotalSeconds();
+                                long secs = message.Date.ToUniversalTime().TotalSeconds();
                                 var data = EncodeMultiByteNumber(secs);
                                 if (data == null)
                                 {
@@ -305,10 +305,10 @@ namespace NokiaMMSLibraryNet
                                 }
                             }
                             // ------------------- FROM ----------------
-                            if (m_Message.IsFromAvailable)
+                            if (message.IsFromAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_FROM + FIELDBASE));
-                                strValue = m_Message.From.FullAddress;
+                                strValue = message.From.FullAddress;
                                 if (strValue == null)
                                 {
                                     sw_Out.Close();
@@ -328,9 +328,9 @@ namespace NokiaMMSLibraryNet
                                 sw_Out.Write((byte)FALSE);
                             }
                             // ------------------- TO ------------------
-                            if (m_Message.IsToAvailable)
+                            if (message.IsToAvailable)
                             {
-                                List<MMAddress> sAddress = m_Message.To;
+                                List<MMAddress> sAddress = message.To;
                                 int nAddressCount = sAddress.Count;
                                 if (sAddress == null)
                                 {
@@ -348,9 +348,9 @@ namespace NokiaMMSLibraryNet
                                 }
                             }
                             // ------------------- CC ------------------
-                            if (m_Message.IsCcAvailable)
+                            if (message.IsCcAvailable)
                             {
-                                List<MMAddress> sAddress = m_Message.Cc;
+                                List<MMAddress> sAddress = message.Cc;
                                 int nAddressCount = sAddress.Count;
                                 if (sAddress == null)
                                 {
@@ -368,9 +368,9 @@ namespace NokiaMMSLibraryNet
                                 }
                             }
                             // ------------------- BCC ------------------
-                            if (m_Message.IsBccAvailable)
+                            if (message.IsBccAvailable)
                             {
-                                List<MMAddress> sAddress = m_Message.Bcc;
+                                List<MMAddress> sAddress = message.Bcc;
                                 int nAddressCount = sAddress.Count;
                                 if (sAddress == null)
                                 {
@@ -387,56 +387,56 @@ namespace NokiaMMSLibraryNet
                                     }
                                 }
                             }
-                            if (!(m_Message.IsToAvailable || m_Message.IsCcAvailable || m_Message.IsBccAvailable))
+                            if (!(message.IsToAvailable || message.IsCcAvailable || message.IsBccAvailable))
                             {
                                 sw_Out.Close();
                                 throw new MMEncoderException("No recipient specified in the Multimedia Message.");
                             }
                             // ---------------- SUBJECT  --------------
-                            if (m_Message.IsSubjectAvailable)
+                            if (message.IsSubjectAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_SUBJECT + FIELDBASE));
-                                if (m_Message.IncludeEncodingInSubject)
+                                if (message.IncludeEncodingInSubject)
                                 {
-                                    sw_Out.Write((byte)((m_Message.Subject.Length + 2) % 256));
+                                    sw_Out.Write((byte)((message.Subject.Length + 2) % 256));
                                     sw_Out.Write((byte)0xEA);
                                 }
-                                sw_Out.Write(m_Message.Subject);
+                                sw_Out.Write(message.Subject);
                             }
                             // ------------------- DELIVERY-REPORT ----------------
-                            if (m_Message.IsDeliveryReportAvailable)
+                            if (message.IsDeliveryReportAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_DELIVERY_REPORT + FIELDBASE));
-                                if (m_Message.DeliveryReport == true)
+                                if (message.DeliveryReport == true)
                                     sw_Out.Write(TRUE);
                                 else
                                     sw_Out.Write(FALSE);
                             }
                             // ------------------- SENDER-VISIBILITY ----------------
-                            if (m_Message.IsSenderVisibilityAvailable)
+                            if (message.IsSenderVisibilityAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_SENDER_VISIBILITY + FIELDBASE));
-                                sw_Out.Write(m_Message.SenderVisibility);
+                                sw_Out.Write(message.SenderVisibility);
                             }
                             // ------------------- READ-REPLY ----------------
-                            if (m_Message.IsReadReplyAvailable)
+                            if (message.IsReadReplyAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_READ_REPLY + FIELDBASE));
-                                if (m_Message.ReadReply == true)
+                                if (message.ReadReply == true)
                                     sw_Out.Write(TRUE);
                                 else
                                     sw_Out.Write(FALSE);
                             }
                             // ---------------- MESSAGE CLASS ---------
-                            if (m_Message.IsMessageClassAvailable)
+                            if (message.IsMessageClassAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_MESSAGE_CLASS + FIELDBASE));
-                                sw_Out.Write(m_Message.MessageClass);
+                                sw_Out.Write(message.MessageClass);
                             }
                             // ---------------- EXPIRY ----------------
-                            if (m_Message.IsExpiryAvailable)
+                            if (message.IsExpiryAvailable)
                             {
-                                long secs = m_Message.Expiry.ToUniversalTime().TotalSeconds();
+                                long secs = message.Expiry.ToUniversalTime().TotalSeconds();
                                 var data = EncodeMultiByteNumber(secs);
                                 if (data == null)
                                 {
@@ -447,7 +447,7 @@ namespace NokiaMMSLibraryNet
                                 sw_Out.Write((byte)(MMConstants.FN_EXPIRY + FIELDBASE));
                                 // Value-length
                                 WriteValueLength(nCount + 2, sw_Out);
-                                if (m_Message.IsExpiryAbsolute)
+                                if (message.IsExpiryAbsolute)
                                 {
                                     // Absolute-token
                                     sw_Out.Write(TRUE);
@@ -464,9 +464,9 @@ namespace NokiaMMSLibraryNet
                                 }
                             }
                             // ---------------- DELIVERY TIME ----------------
-                            if (m_Message.IsDeliveryTimeAvailable)
+                            if (message.IsDeliveryTimeAvailable)
                             {
-                                long secs = m_Message.DeliveryTime.ToUniversalTime().TotalSeconds();
+                                long secs = message.DeliveryTime.ToUniversalTime().TotalSeconds();
                                 var data = EncodeMultiByteNumber(secs);
                                 if (data == null)
                                 {
@@ -477,7 +477,7 @@ namespace NokiaMMSLibraryNet
                                 sw_Out.Write((byte)(MMConstants.FN_DELIVERY_TIME + FIELDBASE));
                                 // Value-length
                                 WriteValueLength(nCount + 2, sw_Out);
-                                if (m_Message.IsDeliveryTimeAbsolute)
+                                if (message.IsDeliveryTimeAbsolute)
                                 {
                                     // Absolute-token
                                     sw_Out.Write((byte)TRUE);
@@ -494,27 +494,27 @@ namespace NokiaMMSLibraryNet
                                 }
                             }
                             // ---------------- PRIORITY ----------------
-                            if (m_Message.IsPriorityAvailable)
+                            if (message.IsPriorityAvailable)
                             {
                                 sw_Out.Write((byte)(MMConstants.FN_PRIORITY + FIELDBASE));
-                                sw_Out.Write(m_Message.Priority);
+                                sw_Out.Write(message.Priority);
                             }
                             // ---------------- CONTENT TYPE ----------------
-                            if (m_Message.IsContentTypeAvailable)
+                            if (message.IsContentTypeAvailable)
                             {
-                                m_bMultipartRelated = false;
+                                isMultipartRelated = false;
                                 sw_Out.Write((byte)(MMConstants.FN_CONTENT_TYPE + FIELDBASE));
-                                byte ctype = EncodeContentType(m_Message.ContentType);
+                                byte ctype = EncodeContentType(message.ContentType);
                                 if (ctype == 0x33)
                                 {
                                     // application/vnd.wap.multipart.related
-                                    m_bMultipartRelated = true;
-                                    if (!string.IsNullOrWhiteSpace(m_Message.MultipartRelatedType))
+                                    isMultipartRelated = true;
+                                    if (!string.IsNullOrWhiteSpace(message.MultipartRelatedType))
                                     {
                                         int valueLength = 1;
-                                        String mprt = m_Message.MultipartRelatedType;
+                                        String mprt = message.MultipartRelatedType;
                                         valueLength += mprt.Length + 2;
-                                        String start = m_Message.PresentationId;
+                                        String start = message.PresentationId;
                                         valueLength += start.Length + 2;
                                         // Value-length
                                         WriteValueLength(valueLength, sw_Out);
@@ -540,7 +540,7 @@ namespace NokiaMMSLibraryNet
                                         sw_Out.Write((byte)(ctype + FIELDBASE));
                                     else
                                     {
-                                        sw_Out.Write(m_Message.ContentType);
+                                        sw_Out.Write(message.ContentType);
                                     }
                                 }
                             }
@@ -550,13 +550,13 @@ namespace NokiaMMSLibraryNet
                                 throw new MMEncoderException("The field CONTENT TYPE of the Multimedia Message is not specified.");
                             }
                             // -------------------------- BODY -------------
-                            byte nPartsCount = (byte)m_Message.NumContents;
+                            byte nPartsCount = (byte)message.NumContents;
                             sw_Out.Write(nPartsCount);
                             MMContent part = null;
                             for (int i = 0; i < nPartsCount; i++)
                             {
-                                part = m_Message.GetContent(i);
-                                bool bRetVal = EncodePart(part, sw_Out, m_bMultipartRelated);
+                                part = message.GetContent(i);
+                                bool bRetVal = EncodePart(part, sw_Out, isMultipartRelated);
                                 if (!bRetVal)
                                 {
                                     sw_Out.Close();
@@ -594,7 +594,7 @@ namespace NokiaMMSLibraryNet
             if (!m_bMessageAvailable)
                 throw new MMEncoderException("No Multimedia Messages set in the encoder");
 
-            EncodeMessage(m_Out);
+            EncodeMessage(m_Message, m_Out);
         }
 
         private static byte[] EncodeMultiByteNumber(long lData)
