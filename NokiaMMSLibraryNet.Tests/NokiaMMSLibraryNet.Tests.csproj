@@ -50,6 +50,9 @@
     <None Include="TestData\megatron.smil">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="TestData\expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NokiaMMSLibraryNet\NokiaMMSLibraryNet.csproj">

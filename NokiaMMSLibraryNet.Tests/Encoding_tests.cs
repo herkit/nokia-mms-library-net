@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 namespace NokiaMMSLibraryNet.Tests
 {
     [TestFixture]
-    public class Class1
+    public class Encoding_tests
     {
         [Test]
-        public void Test()
+        public void Should_encode_to_expected_data()
         {
             var mms = new MMMessage();
             MMContent content;
@@ -51,11 +51,7 @@ namespace NokiaMMSLibraryNet.Tests
 
             mms.AddContent(content);
 
-            // Mar 26, 2015 09:27:31.000000000 W. Europe Standard Time
-            //mms.Date = new DateTime(14273584510000000);
             mms.Date = new DateTime(2015, 3, 26, 9, 27, 31, DateTimeKind.Local);
-            Console.WriteLine(mms.Date);
-            Console.WriteLine(mms.Date.TotalSeconds());
             mms.TransactionId = "2077.1427358451410";
             mms.ContentType = MMConstants.CT_APPLICATION_MULTIPART_RELATED;
             mms.MessageType = MMConstants.MESSAGE_TYPE_M_SEND_REQ;
@@ -76,31 +72,9 @@ namespace NokiaMMSLibraryNet.Tests
             encoder.EncodeMessage();
             var messagebytes = encoder.GetMessage();
 
-            var header = @"POST /mms/no/mt HTTP/1.1
-X-NOKIA-MMSC-MESSAGE-TYPE: MultiMediaMessage
-X-NOKIA-MMSC-VERSION: 1.0
-X-MMSC-TELIA-Version: v2.7
-X-MMSC-TELIA-ChargedParty: Recipient
-X-MMSC-TELIA-ProductPriceNetCom: 0
-Content-Type: application/vnd.wap.mms-message
-Content-Length: 52709
-Authorization: Basic MjA3NzoycUxMcFQzNm5T
-User-Agent: Java1.3.1_03
-Host: mmsgw.netcom.no:8080
-Accept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
-Connection: keep-alive
+            var expectedBytes = File.ReadAllBytes(@".\TestData\expected");
 
-";
-
-            var stream = File.Create(@"C:\temp\nokiamms_request");
-
-            var headerbytes = System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(header);
-
-            stream.Write(headerbytes, 0, headerbytes.Length);
-            stream.Write(messagebytes, 0, messagebytes.Length);
-            stream.Close();
-
-            File.WriteAllBytes(@"C:\temp\nokiamms_payload", messagebytes);
+            Assert.IsTrue(messagebytes.SequenceEqual(expectedBytes));
         }
     }
 }
