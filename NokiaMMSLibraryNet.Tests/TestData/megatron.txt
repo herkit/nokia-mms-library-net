@@ -1,0 +1,7 @@
+Megatron is the primary antagonist and leader of the evil Decepticons.
+
+Skill: 7
+Power: 8
+Agility: 5
+Bravery: 7
+Speed: 4
