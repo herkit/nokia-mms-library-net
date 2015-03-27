@@ -74,172 +74,68 @@ namespace NokiaMMSLibraryNet
 
         private byte EncodeContentType(string sContentType)
         {
-            if (sContentType.Equals("*/*", StringComparison.InvariantCultureIgnoreCase))
-                return 0x00;
+            Dictionary<string, byte> contentTypeMap = new Dictionary<string, byte> {
+                            { "*/*", 0x00 },
+                            { "text/*", 0x01 },
+                            { "text/html", 0x02 },
+                            { "text/plain", 0x03 },
+                            { "text/x-hdml", 0x04 },
+                            { "text/x-ttml", 0x05 },
+                            { "text/x-vCalendar", 0x06 },
+                            { "text/x-vCard", 0x07 },
+                            { "text/vnd.wap.wml", 0x08 },
+                            { "text/vnd.wap.wmlscript", 0x09 },
+                            { "text/vnd.wap.channel", 0x0A },
+                            { "multipart/*", 0x0B },
+                            { "multipart/mixed", 0x0C },
+                            { "multipart/form-data", 0x0D },
+                            { "multipart/byteranges", 0x0E },
+                            { "multipart/alternative", 0x0F },
+                            { "application/*", 0x10 },
+                            { "application/java-vm", 0x11 },
+                            { "application/x-www-form-urlencoded", 0x12 },
+                            { "application/x-hdmlc", 0x13 },
+                            { "application/vnd.wap.wmlc", 0x14 },
+                            { "application/vnd.wap.wmlscriptc", 0x15 },
+                            { "application/vnd.wap.channelc", 0x16 },
+                            { "application/vnd.wap.uaprof", 0x17 },
+                            { "application/vnd.wap.wtls-ca-certificate", 0x18 },
+                            { "application/vnd.wap.wtls-user-certificate", 0x19 },
+                            { "application/x-x509-ca-cert", 0x1A },
+                            { "application/x-x509-user-cert", 0x1B },
+                            { "image/*", 0x1C },
+                            { "image/gif", 0x1D },
+                            { "image/jpeg", 0x1E },
+                            { "image/tiff", 0x1F },
+                            { "image/png", 0x20 },
+                            { "image/vnd.wap.wbmp", 0x21 },
+                            { "application/vnd.wap.multipart.*", 0x22 },
+                            { "application/vnd.wap.multipart.mixed", 0x23 },
+                            { "application/vnd.wap.multipart.form-data", 0x24 },
+                            { "application/vnd.wap.multipart.byteranges", 0x25 },
+                            { "application/vnd.wap.multipart.alternative", 0x26 },
+                            { "application/xml", 0x27 },
+                            { "text/xml", 0x28 },
+                            { "application/vnd.wap.wbxml", 0x29 },
+                            { "application/x-x968-cross-cert", 0x2A },
+                            { "application/x-x968-ca-cert", 0x2B },
+                            { "application/x-x968-user-cert", 0x2C },
+                            { "text/vnd.wap.si", 0x2D },
+                            { "application/vnd.wap.sic", 0x2E },
+                            { "text/vnd.wap.sl", 0x2F },
+                            { "application/vnd.wap.slc", 0x30 },
+                            { "text/vnd.wap.co", 0x31 },
+                            { "application/vnd.wap.coc", 0x32 },
+                            { "application/vnd.wap.multipart.related", 0x33 },
+                            { "application/vnd.wap.sia", 0x34 },
+                            { "text/vnd.wap.connectivity-xml", 0x35 },
+                            { "application/vnd.wap.connectivity-wbxml", 0x36 }
+                        };
+
+            if (contentTypeMap.ContainsKey(sContentType.ToLower()))
+                return contentTypeMap[sContentType.ToLower()];
             else
-                if (sContentType.Equals("text/*", StringComparison.InvariantCultureIgnoreCase))
-                    return 0x01;
-                else
-                    if (sContentType.Equals("text/html", StringComparison.InvariantCultureIgnoreCase))
-                        return 0x02;
-                    else
-                        if (sContentType.Equals("text/plain", StringComparison.InvariantCultureIgnoreCase))
-                            return 0x03;
-                        else
-                            if (sContentType.Equals("text/x-hdml", StringComparison.InvariantCultureIgnoreCase))
-                                return 0x04;
-                            else
-                                if (sContentType.Equals("text/x-ttml", StringComparison.InvariantCultureIgnoreCase))
-                                    return 0x05;
-                                else
-                                    if (sContentType.Equals("text/x-vCalendar", StringComparison.InvariantCultureIgnoreCase))
-                                        return 0x06;
-                                    else
-                                        if (sContentType.Equals("text/x-vCard", StringComparison.InvariantCultureIgnoreCase))
-                                            return 0x07;
-                                        else
-                                            if (sContentType.Equals("text/vnd.wap.wml", StringComparison.InvariantCultureIgnoreCase))
-                                                return 0x08;
-                                            else
-                                                if (sContentType.Equals("text/vnd.wap.wmlscript", StringComparison.InvariantCultureIgnoreCase))
-                                                    return 0x09;
-                                                else
-                                                    if (sContentType.Equals("text/vnd.wap.channel", StringComparison.InvariantCultureIgnoreCase))
-                                                        return 0x0A;
-                                                    else
-                                                        if (sContentType.Equals("multipart/*", StringComparison.InvariantCultureIgnoreCase))
-                                                            return 0x0B;
-                                                        else
-                                                            if (sContentType.Equals("multipart/mixed", StringComparison.InvariantCultureIgnoreCase))
-                                                                return 0x0C;
-                                                            else
-                                                                if (sContentType.Equals("multipart/form-data", StringComparison.InvariantCultureIgnoreCase))
-                                                                    return 0x0D;
-                                                                else
-                                                                    if (sContentType.Equals("multipart/byteranges", StringComparison.InvariantCultureIgnoreCase))
-                                                                        return 0x0E;
-                                                                    else
-                                                                        if (sContentType.Equals("multipart/alternative", StringComparison.InvariantCultureIgnoreCase))
-                                                                            return 0x0F;
-                                                                        else
-                                                                            if (sContentType.Equals("application/*", StringComparison.InvariantCultureIgnoreCase))
-                                                                                return 0x10;
-                                                                            else
-                                                                                if (sContentType.Equals("application/java-vm", StringComparison.InvariantCultureIgnoreCase))
-                                                                                    return 0x11;
-                                                                                else
-                                                                                    if (sContentType.Equals("application/x-www-form-urlencoded", StringComparison.InvariantCultureIgnoreCase))
-                                                                                        return 0x12;
-                                                                                    else
-                                                                                        if (sContentType.Equals("application/x-hdmlc", StringComparison.InvariantCultureIgnoreCase))
-                                                                                            return 0x13;
-                                                                                        else
-                                                                                            if (sContentType.Equals("application/vnd.wap.wmlc", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                return 0x14;
-                                                                                            else
-                                                                                                if (sContentType.Equals("application/vnd.wap.wmlscriptc", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                    return 0x15;
-                                                                                                else
-                                                                                                    if (sContentType.Equals("application/vnd.wap.channelc", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                        return 0x16;
-                                                                                                    else
-                                                                                                        if (sContentType.Equals("application/vnd.wap.uaprof", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                            return 0x17;
-                                                                                                        else
-                                                                                                            if (sContentType.Equals("application/vnd.wap.wtls-ca-certificate", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                return 0x18;
-                                                                                                            else
-                                                                                                                if (sContentType.Equals("application/vnd.wap.wtls-user-certificate", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                    return 0x19;
-                                                                                                                else
-                                                                                                                    if (sContentType.Equals("application/x-x509-ca-cert", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                        return 0x1A;
-                                                                                                                    else
-                                                                                                                        if (sContentType.Equals("application/x-x509-user-cert", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                            return 0x1B;
-                                                                                                                        else
-                                                                                                                            if (sContentType.Equals("image/*", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                return 0x1C;
-                                                                                                                            else
-                                                                                                                                if (sContentType.Equals("image/gif", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                    return 0x1D;
-                                                                                                                                else
-                                                                                                                                    if (sContentType.Equals("image/jpeg", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                        return 0x1E;
-                                                                                                                                    else
-                                                                                                                                        if (sContentType.Equals("image/tiff", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                            return 0x1F;
-                                                                                                                                        else
-                                                                                                                                            if (sContentType.Equals("image/png", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                return 0x20;
-                                                                                                                                            else
-                                                                                                                                                if (sContentType.Equals("image/vnd.wap.wbmp", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                    return 0x21;
-                                                                                                                                                else
-                                                                                                                                                    if (sContentType.Equals("application/vnd.wap.multipart.*", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                        return 0x22;
-                                                                                                                                                    else
-                                                                                                                                                        if (sContentType.Equals("application/vnd.wap.multipart.mixed", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                            return 0x23;
-                                                                                                                                                        else
-                                                                                                                                                            if (sContentType.Equals("application/vnd.wap.multipart.form-data", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                return 0x24;
-                                                                                                                                                            else
-                                                                                                                                                                if (sContentType.Equals("application/vnd.wap.multipart.byteranges", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                    return 0x25;
-                                                                                                                                                                else
-                                                                                                                                                                    if (sContentType.Equals("application/vnd.wap.multipart.alternative", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                        return 0x26;
-                                                                                                                                                                    else
-                                                                                                                                                                        if (sContentType.Equals("application/xml", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                            return 0x27;
-                                                                                                                                                                        else
-                                                                                                                                                                            if (sContentType.Equals("text/xml", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                return 0x28;
-                                                                                                                                                                            else
-                                                                                                                                                                                if (sContentType.Equals("application/vnd.wap.wbxml", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                    return 0x29;
-                                                                                                                                                                                else
-                                                                                                                                                                                    if (sContentType.Equals("application/x-x968-cross-cert", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                        return 0x2A;
-                                                                                                                                                                                    else
-                                                                                                                                                                                        if (sContentType.Equals("application/x-x968-ca-cert", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                            return 0x2B;
-                                                                                                                                                                                        else
-                                                                                                                                                                                            if (sContentType.Equals("application/x-x968-user-cert", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                return 0x2C;
-                                                                                                                                                                                            else
-                                                                                                                                                                                                if (sContentType.Equals("text/vnd.wap.si", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                    return 0x2D;
-                                                                                                                                                                                                else
-                                                                                                                                                                                                    if (sContentType.Equals("application/vnd.wap.sic", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                        return 0x2E;
-                                                                                                                                                                                                    else
-                                                                                                                                                                                                        if (sContentType.Equals("text/vnd.wap.sl", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                            return 0x2F;
-                                                                                                                                                                                                        else
-                                                                                                                                                                                                            if (sContentType.Equals("application/vnd.wap.slc", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                                return 0x30;
-                                                                                                                                                                                                            else
-                                                                                                                                                                                                                if (sContentType.Equals("text/vnd.wap.co", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                                    return 0x31;
-                                                                                                                                                                                                                else
-                                                                                                                                                                                                                    if (sContentType.Equals("application/vnd.wap.coc", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                                        return 0x32;
-                                                                                                                                                                                                                    else
-                                                                                                                                                                                                                        if (sContentType.Equals("application/vnd.wap.multipart.related", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                                            return 0x33;
-                                                                                                                                                                                                                        else
-                                                                                                                                                                                                                            if (sContentType.Equals("application/vnd.wap.sia", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                                                return 0x34;
-                                                                                                                                                                                                                            else
-                                                                                                                                                                                                                                if (sContentType.Equals("text/vnd.wap.connectivity-xml", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                                                    return 0x35;
-                                                                                                                                                                                                                                else
-                                                                                                                                                                                                                                    if (sContentType.Equals("application/vnd.wap.connectivity-wbxml", StringComparison.InvariantCultureIgnoreCase))
-                                                                                                                                                                                                                                        return 0x36;
-                                                                                                                                                                                                                                    else
-                                                                                                                                                                                                                                        return 0;
+                return 0;
         }
 
         private int unsignedByte(byte value)
@@ -682,7 +578,8 @@ namespace NokiaMMSLibraryNet
                                 // application/vnd.wap.multipart.related   
                                 m_bMultipartRelated = true;
 
-                                if (!string.IsNullOrWhiteSpace(m_Message.MultipartRelatedType)) {
+                                if (!string.IsNullOrWhiteSpace(m_Message.MultipartRelatedType))
+                                {
                                     int valueLength = 1;
                                     String mprt = m_Message.MultipartRelatedType;
                                     valueLength += mprt.Length + 2;
@@ -700,7 +597,9 @@ namespace NokiaMMSLibraryNet
                                     sw_Out.Write((byte)(0x0A + FIELDBASE));
                                     sw_Out.Write(start);
                                     //sw_Out.Write(0x00);   
-                                } else {
+                                }
+                                else
+                                {
                                     sw_Out.Write((byte)(ctype + FIELDBASE));
                                 }
                             }
@@ -834,7 +733,7 @@ namespace NokiaMMSLibraryNet
             {
                 if (part.ContentId[0] == '<')
                 {
-                    nLengthOfHeaders = 2 + (part.ContentId).Length + 1;                    
+                    nLengthOfHeaders = 2 + (part.ContentId).Length + 1;
                     // 2 = 0xC0 (Content-ID) + 0x22 (quotes)   
                     // 1 = 0x00 (at the end of the contentID)   
                 }
