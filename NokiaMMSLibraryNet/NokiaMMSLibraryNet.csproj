@@ -40,13 +40,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions.cs" />
-    <Compile Include="MMAddress.cs" />
+    <Compile Include="MultimediaMessageAddress.cs" />
     <Compile Include="MultimediaMessageConstants.cs" />
     <Compile Include="MultimediaMessageContent.cs" />
     <Compile Include="MultimediaMessageEncoder.cs" />
     <Compile Include="MultimediaMessageEncoderException.cs" />
     <Compile Include="MultimediaMessage.cs" />
-    <Compile Include="MMBinaryWriter.cs" />
+    <Compile Include="MultimediaMessageBinaryWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -570,9 +570,9 @@ namespace NokiaMMSLibraryNet
                                 throw new MultimediaMessageEncoderException("Invalid Multimedia Message format.");
                             }
                     }
-                }
 
-                //sw_Out.Close();
+                    sw_Out.Flush();
+                }
                 m_bMessageEcoded = true;
             }
             catch (IOException e)
