@@ -40,9 +40,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions.cs" />
+    <Compile Include="MultimediaMessageDecoderException.cs" />
     <Compile Include="MultimediaMessageAddress.cs" />
     <Compile Include="MultimediaMessageConstants.cs" />
     <Compile Include="MultimediaMessageContent.cs" />
+    <Compile Include="MultimediaMessageDecoder.cs" />
     <Compile Include="MultimediaMessageEncoder.cs" />
     <Compile Include="MultimediaMessageEncoderException.cs" />
     <Compile Include="MultimediaMessage.cs" />

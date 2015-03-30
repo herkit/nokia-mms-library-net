@@ -81,4 +81,10 @@ namespace NokiaMMSLibraryNet
         public const string CT_APPLICATION_MULTIPART_RELATED="application/vnd.wap.multipart.related";  
         public const string CT_APPLICATION_SMIL="application/smil";  
     }
+
+    public enum MultimediaMessageVersion : byte
+    {
+        Version10 = 0x90,
+        Version11 = 0x91,
+    }
 }
