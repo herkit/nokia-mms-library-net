@@ -465,34 +465,6 @@ namespace NokiaMMSLibraryNet
             }
         }
 
-        private MultimediaMessageAddress DecodeAddress(string value)
-        {
-            byte type = MultimediaMessageConstants.ADDRESS_TYPE_UNKNOWN;
-            string address = value;
-
-            int sep = value.IndexOf('/'); // the character "/"  
-            if (sep != -1)
-            {
-                address = value.Substring(0, sep);
-                if (value.EndsWith("PLMN"))
-                    type = MultimediaMessageConstants.ADDRESS_TYPE_PLMN;
-                else
-                    if (value.EndsWith("IPv4"))
-                        type = MultimediaMessageConstants.ADDRESS_TYPE_IPV4;
-                    else
-                        if (value.EndsWith("IPv6"))
-                            type = MultimediaMessageConstants.ADDRESS_TYPE_IPV6;
-            }
-            else
-            {
-                int at = address.IndexOf('@'); // the character "@"  
-                if (at >= 0)
-                    type = MultimediaMessageConstants.ADDRESS_TYPE_EMAIL;
-            }
-            MultimediaMessageAddress result = new MultimediaMessageAddress(address, type);
-            return result;
-        }
-
         /** 
          * Adds a new receiver of the Multimedia Message. The message can have 
          * more than one receiver but at least one. 
@@ -504,7 +476,7 @@ namespace NokiaMMSLibraryNet
          */
         public void AddToAddress(string value)
         {
-            MultimediaMessageAddress addr = DecodeAddress(value);
+            MultimediaMessageAddress addr = new MultimediaMessageAddress(value);
             hTo.Add(addr);
             flagToAvailable = true;
         }
@@ -520,7 +492,7 @@ namespace NokiaMMSLibraryNet
          */
         public void AddCcAddress(string value)
         {
-            MultimediaMessageAddress addr = DecodeAddress(value);
+            MultimediaMessageAddress addr = new MultimediaMessageAddress(value);
             hCc.Add(addr);
             flagCcAvailable = true;
         }
@@ -536,7 +508,7 @@ namespace NokiaMMSLibraryNet
          */
         public void AddBccAddress(string value)
         {
-            MultimediaMessageAddress addr = DecodeAddress(value);
+            MultimediaMessageAddress addr = new MultimediaMessageAddress(value);
             hBcc.Add(addr);
             flagBccAvailable = true;
         }

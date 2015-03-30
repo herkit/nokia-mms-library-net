@@ -60,7 +60,7 @@ namespace NokiaMMSLibraryNet.Tests
             mms.Subject = "Test mms";
             mms.IncludeEncodingInSubject = true;
             mms.From = new MultimediaMessageAddress("2077", MultimediaMessageConstants.ADDRESS_TYPE_PLMN);
-            mms.AddToAddress("+4798682185/PLMN");
+            mms.AddToAddress("+4798682185/TYPE=PLMN");
             mms.SenderVisibility = MultimediaMessageConstants.SENDER_VISIBILITY_SHOW;
             mms.ReadReply = false;
             mms.MessageClass = MultimediaMessageConstants.MESSAGE_CLASS_PERSONAL;
@@ -73,6 +73,8 @@ namespace NokiaMMSLibraryNet.Tests
             var messagebytes = encoder.GetMessage();
 
             var expectedBytes = File.ReadAllBytes(@".\TestData\expected");
+
+            Console.WriteLine(mms.Date.ToString("R"));
 
             Assert.IsTrue(messagebytes.SequenceEqual(expectedBytes));
         }

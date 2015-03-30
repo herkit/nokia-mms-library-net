@@ -43,6 +43,37 @@ namespace NokiaMMSLibraryNet
             setAddress(value.address, value.type);
         }
 
+        public MultimediaMessageAddress(string value)
+        {
+            byte type = MultimediaMessageConstants.ADDRESS_TYPE_UNKNOWN;
+            string address = value;
+
+            int sep = value.IndexOf('/'); // the character "/"  
+            if (sep != -1)
+            {
+                address = value.Substring(0, sep);
+                sep = value.IndexOf('=', sep);
+                if (sep != -1)
+                {
+                    switch (value.Substring(sep + 1))
+                    {
+                        case "PLMN": type = MultimediaMessageConstants.ADDRESS_TYPE_PLMN; break;
+                        case "IPv4": type = MultimediaMessageConstants.ADDRESS_TYPE_IPV4; break;
+                        case "IPv6": type = MultimediaMessageConstants.ADDRESS_TYPE_IPV6; break;
+                        case "EMAIL": type = MultimediaMessageConstants.ADDRESS_TYPE_EMAIL; break;
+                        default: break;
+                    }
+                }
+            }
+            else
+            {
+                if (address.Contains('@'))
+                    type = MultimediaMessageConstants.ADDRESS_TYPE_EMAIL;
+            }
+
+            setAddress(address, type);
+        }
+
         /**  
          * Sets MM address value specifying the address and the type.  
          *  
