@@ -180,6 +180,8 @@ namespace NokiaMMSLibraryNet
                         throw new MultimediaMessageEncoderException("Invalid Multimedia Message format.");
                     }
                     byte nMessageType = message.MessageType;
+
+                    // TODO: Refactor code duplication
                     switch (nMessageType)
                     {
                         case MultimediaMessageConstants.MESSAGE_TYPE_M_DELIVERY_IND // ---------------------------- m-delivery-ind
@@ -397,11 +399,9 @@ namespace NokiaMMSLibraryNet
                             {
                                 sw_Out.Write((byte)(MultimediaMessageConstants.FN_SUBJECT + FIELDBASE));
                                 if (message.IncludeEncodingInSubject)
-                                {
-                                    sw_Out.Write((byte)((message.Subject.Length + 2) % 256));
-                                    sw_Out.Write((byte)0xEA);
-                                }
-                                sw_Out.Write(message.Subject);
+                                    sw_Out.WriteEncodedString(message.Subject);
+                                else 
+                                    sw_Out.Write(message.Subject);
                             }
                             // ------------------- DELIVERY-REPORT ----------------
                             if (message.IsDeliveryReportAvailable)
@@ -723,8 +723,8 @@ namespace NokiaMMSLibraryNet
                     // Write ContentType   
                     writer.Write((byte)0x03); // length of content type   
                     writer.Write((byte)nContentType);
-                    writer.Write((byte)CHARSET_PARAMETER); // charset parameter   
-                    writer.Write((byte)0xEA); // us-ascii code   
+                    writer.Write((byte)CHARSET_PARAMETER); // charset parameter
+                    writer.Write((byte)(writer.Encoding.GetMIBEnum() + FIELDBASE % 256) ); // us-ascii code   
                 }
                 else
                 {
@@ -759,7 +759,7 @@ namespace NokiaMMSLibraryNet
                     writer.Write(part.Type);
                     //sw_Out.Write(0x00);   
                     writer.Write((byte)FALSE); // charset parameter   
-                    writer.Write((byte)0xEA); // ascii-code   
+                    writer.Write((byte)((writer.Encoding.GetMIBEnum() + 0x80) % 256)); // ascii-code   
                 }
                 else
                 {
