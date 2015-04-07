@@ -176,8 +176,8 @@ namespace NokiaMMSLibraryNet
             int nVal;
             string sVal;
             // ------------------- MESSAGE TYPE --------
-            sw_Out.Write(((byte)MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
-            sw_Out.Write(message.MessageType);
+            sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
+            sw_Out.Write((byte)message.MessageType);
             // ------------------- MESSAGE ID ------
             if (message.IsMessageIdAvailable)
             {
@@ -191,15 +191,16 @@ namespace NokiaMMSLibraryNet
             }
             // ------------------- VERSION -------------
             sw_Out.Write((byte)(MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
+            byte bVal;
             if (!message.IsVersionAvailable)
             {
-                nVal = MultimediaMessageConstants.MMS_VERSION_10;
+                bVal = MultimediaMessageConstants.MMS_VERSION_10;
             }
             else
             {
-                nVal = message.Version;
+                bVal = (byte)message.Version;
             }
-            sw_Out.Write(nVal);
+            sw_Out.Write(bVal);
             // ------------------- DATE ----------------
             if (message.IsDateAvailable)
             {
@@ -211,7 +212,7 @@ namespace NokiaMMSLibraryNet
                     throw new MultimediaMessageEncoderException("An error occurred encoding the sending date of the Multimedia Message");
                 }
                 sw_Out.Write((byte)(MultimediaMessageConstants.FN_DATE + FIELDBASE));
-                int nCount = data[0];
+                byte nCount = data[0];
                 sw_Out.Write(nCount);
                 for (int i = 1; i <= nCount; i++)
                 {
@@ -247,7 +248,7 @@ namespace NokiaMMSLibraryNet
             if (message.IsStatusAvailable)
             {
                 sw_Out.Write((byte)(MultimediaMessageConstants.FN_STATUS + FIELDBASE));
-                sw_Out.Write(message.MessageStatus);
+                sw_Out.Write((byte)message.MessageStatus);
             }
             else
             {
@@ -255,10 +256,12 @@ namespace NokiaMMSLibraryNet
                 throw new MultimediaMessageEncoderException("The field Message-ID of the Multimedia Message is null");
             }
         }
+
         private static void EncodeSendMessageRequest(MultimediaMessage message, MultimediaMessageBinaryWriter sw_Out)
         {
             bool isMultipartRelated = false;
             int numValue;
+            byte bVal;
             String strValue;
             // ------------------- MESSAGE TYPE --------
             sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
@@ -273,13 +276,13 @@ namespace NokiaMMSLibraryNet
             sw_Out.Write((byte)(MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
             if (!message.IsVersionAvailable)
             {
-                numValue = MultimediaMessageConstants.MMS_VERSION_10;
+                bVal = MultimediaMessageConstants.MMS_VERSION_10;
             }
             else
             {
-                numValue = message.Version;
+                bVal = (byte)message.Version;
             }
-            sw_Out.Write((byte)numValue);
+            sw_Out.Write(bVal);
             // ------------------- DATE ----------------
             if (message.IsDateAvailable)
             {

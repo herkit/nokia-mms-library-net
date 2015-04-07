@@ -78,5 +78,49 @@ namespace NokiaMMSLibraryNet.Tests
 
             Assert.IsTrue(messagebytes.SequenceEqual(expectedBytes));
         }
+
+        [Test]
+        public void Should_encode_delivery_indication()
+        {
+            var msg = new MultimediaMessage();
+
+            msg.MessageType = MultimediaMessageConstants.MESSAGE_TYPE_M_DELIVERY_IND;
+            msg.MessageId = "1234";
+            msg.Version = MultimediaMessageVersion.Version10;
+            msg.Date = new DateTime(2015, 3, 26, 9, 27, 31, DateTimeKind.Local);
+            msg.MessageStatus = MultimediaMessageStatus.RETRIEVED;
+
+            msg.AddToAddress("+4790871951/TYPE=PLMN");
+
+            var ms = new MemoryStream();
+            var encoder = new MultimediaMessageEncoder();
+
+            encoder.EncodeMessage(msg, ms);
+
+            var bytes = ms.ToArray();
+
+            Assert.AreEqual(0x8C, bytes[0]);
+            Assert.AreEqual(0x86, bytes[1]);
+
+            // Message id
+            Assert.AreEqual(0x8B, bytes[2]);
+            Assert.AreEqual(System.Text.Encoding.UTF8.GetBytes("1234"), bytes.Skip(3).Take(4).ToArray());
+            Assert.AreEqual(0x00, bytes[7]);
+
+            Assert.AreEqual(0x8D, bytes[8]);
+            Assert.AreEqual(0x90, bytes[9]);
+
+            Assert.AreEqual(0x85, bytes[10]);
+            Assert.AreEqual(new[] { 0x04, 0x55, 0x13, 0xC2, 0xF3 }, bytes.Skip(11).Take(5), "Date is not given properly");
+
+            Assert.AreEqual(0x97, bytes[16]);
+            Assert.AreEqual(System.Text.Encoding.UTF8.GetBytes("+4790871951/TYPE=PLMN"), bytes.Skip(17).Take(21).ToArray());
+            Assert.AreEqual(0x00, bytes[38]);
+
+            Assert.AreEqual(0x95, bytes[39]);
+            Assert.AreEqual(0x81, bytes[40]);
+
+            Assert.AreEqual(41, bytes.Length);
+        }
     }
 }
