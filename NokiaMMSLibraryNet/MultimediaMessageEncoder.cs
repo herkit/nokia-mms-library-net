@@ -171,7 +171,7 @@ namespace NokiaMMSLibraryNet
             }
         }
 
-        private static void EncodeDeliveryIndicationMessage(MultimediaMessage message, MultimediaMessageBinaryWriter sw_Out)
+        private static void EncodeDeliveryIndication(MultimediaMessage message, MultimediaMessageBinaryWriter sw_Out)
         {
             int nVal;
             string sVal;
@@ -181,7 +181,7 @@ namespace NokiaMMSLibraryNet
             // ------------------- MESSAGE ID ------
             if (message.IsMessageIdAvailable)
             {
-                sw_Out.Write(((byte)MultimediaMessageConstants.FN_MESSAGE_ID + FIELDBASE));
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_ID + FIELDBASE));
                 sw_Out.Write(message.MessageId);
             }
             else
@@ -190,7 +190,7 @@ namespace NokiaMMSLibraryNet
                 throw new MultimediaMessageEncoderException("The field Message-ID of the Multimedia Message is null");
             }
             // ------------------- VERSION -------------
-            sw_Out.Write(((byte)MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
+            sw_Out.Write((byte)(MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
             if (!message.IsVersionAvailable)
             {
                 nVal = MultimediaMessageConstants.MMS_VERSION_10;
@@ -210,7 +210,7 @@ namespace NokiaMMSLibraryNet
                     sw_Out.Close();
                     throw new MultimediaMessageEncoderException("An error occurred encoding the sending date of the Multimedia Message");
                 }
-                sw_Out.Write(((byte)MultimediaMessageConstants.FN_DATE + FIELDBASE));
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_DATE + FIELDBASE));
                 int nCount = data[0];
                 sw_Out.Write(nCount);
                 for (int i = 1; i <= nCount; i++)
@@ -233,7 +233,7 @@ namespace NokiaMMSLibraryNet
                     sVal = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
                     if (sVal != null)
                     {
-                        sw_Out.Write(((byte)MultimediaMessageConstants.FN_TO + FIELDBASE));
+                        sw_Out.Write((byte)(MultimediaMessageConstants.FN_TO + FIELDBASE));
                         sw_Out.Write(sVal);
                     }
                 }
@@ -246,13 +246,314 @@ namespace NokiaMMSLibraryNet
             // ------------------- MESSAGE-STATUS ----------------
             if (message.IsStatusAvailable)
             {
-                sw_Out.Write(((byte)MultimediaMessageConstants.FN_STATUS + FIELDBASE));
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_STATUS + FIELDBASE));
                 sw_Out.Write(message.MessageStatus);
             }
             else
             {
                 sw_Out.Close();
                 throw new MultimediaMessageEncoderException("The field Message-ID of the Multimedia Message is null");
+            }
+        }
+        private static void EncodeSendMessageRequest(MultimediaMessage message, MultimediaMessageBinaryWriter sw_Out)
+        {
+            bool isMultipartRelated = false;
+            int numValue;
+            String strValue;
+            // ------------------- MESSAGE TYPE --------
+            sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
+            sw_Out.Write(message.MessageType);
+            // ------------------- TRANSACTION ID ------
+            if (message.IsTransactionIdAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_TRANSACTION_ID + FIELDBASE));
+                sw_Out.Write(message.TransactionId);
+            }
+            // ------------------- VERSION -------------
+            sw_Out.Write((byte)(MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
+            if (!message.IsVersionAvailable)
+            {
+                numValue = MultimediaMessageConstants.MMS_VERSION_10;
+            }
+            else
+            {
+                numValue = message.Version;
+            }
+            sw_Out.Write((byte)numValue);
+            // ------------------- DATE ----------------
+            if (message.IsDateAvailable)
+            {
+                long secs = message.Date.ToUniversalTime().TotalSeconds();
+                var data = EncodeMultiByteNumber(secs);
+                if (data == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("An error occurred encoding the sending date of the Multimedia Message");
+                }
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_DATE + FIELDBASE));
+                byte nCount = data[0];
+                sw_Out.Write(nCount);
+                for (byte i = 1; i <= nCount; i++)
+                {
+                    sw_Out.Write(data[i]);
+                }
+            }
+            // ------------------- FROM ----------------
+            if (message.IsFromAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_FROM + FIELDBASE));
+                strValue = message.From.FullAddress;
+                if (strValue == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("The field from is assigned to null");
+                }
+                // Value-length
+                WriteValueLength(strValue.Length + 2, sw_Out);
+                // Address-present-token
+                sw_Out.Write((byte)TRUE);
+                // Encoded-string-value
+                sw_Out.Write(strValue);
+            }
+            else
+            {
+                // Value-length
+                sw_Out.Write((byte)1);
+                sw_Out.Write((byte)FALSE);
+            }
+            // ------------------- TO ------------------
+            if (message.IsToAvailable)
+            {
+                List<MultimediaMessageAddress> sAddress = message.To;
+                int nAddressCount = sAddress.Count;
+                if (sAddress == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("The field TO of the Multimedia Message is set to null.");
+                }
+                for (int i = 0; i < nAddressCount; i++)
+                {
+                    strValue = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
+                    if (strValue != null)
+                    {
+                        sw_Out.Write((byte)(MultimediaMessageConstants.FN_TO + FIELDBASE));
+                        sw_Out.Write(strValue);
+                    }
+                }
+            }
+            // ------------------- CC ------------------
+            if (message.IsCcAvailable)
+            {
+                List<MultimediaMessageAddress> sAddress = message.Cc;
+                int nAddressCount = sAddress.Count;
+                if (sAddress == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("The field CC of the Multimedia Message is set to null.");
+                }
+                for (int i = 0; i < nAddressCount; i++)
+                {
+                    strValue = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
+                    if (strValue != null)
+                    {
+                        sw_Out.Write((byte)(MultimediaMessageConstants.FN_CC + FIELDBASE));
+                        sw_Out.Write(strValue);
+                    }
+                }
+            }
+            // ------------------- BCC ------------------
+            if (message.IsBccAvailable)
+            {
+                List<MultimediaMessageAddress> sAddress = message.Bcc;
+                int nAddressCount = sAddress.Count;
+                if (sAddress == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("The field BCC of the Multimedia Message is set to null.");
+                }
+                for (int i = 0; i < nAddressCount; i++)
+                {
+                    strValue = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
+                    if (strValue != null)
+                    {
+                        sw_Out.Write((byte)(MultimediaMessageConstants.FN_BCC + FIELDBASE));
+                        sw_Out.Write(strValue);
+                    }
+                }
+            }
+            if (!(message.IsToAvailable || message.IsCcAvailable || message.IsBccAvailable))
+            {
+                sw_Out.Close();
+                throw new MultimediaMessageEncoderException("No recipient specified in the Multimedia Message.");
+            }
+            // ---------------- SUBJECT  --------------
+            if (message.IsSubjectAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_SUBJECT + FIELDBASE));
+                if (message.IncludeEncodingInSubject)
+                    sw_Out.WriteEncodedString(message.Subject);
+                else
+                    sw_Out.Write(message.Subject);
+            }
+            // ------------------- DELIVERY-REPORT ----------------
+            if (message.IsDeliveryReportAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_DELIVERY_REPORT + FIELDBASE));
+                if (message.DeliveryReport == true)
+                    sw_Out.Write(TRUE);
+                else
+                    sw_Out.Write(FALSE);
+            }
+            // ------------------- SENDER-VISIBILITY ----------------
+            if (message.IsSenderVisibilityAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_SENDER_VISIBILITY + FIELDBASE));
+                sw_Out.Write(message.SenderVisibility);
+            }
+            // ------------------- READ-REPLY ----------------
+            if (message.IsReadReplyAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_READ_REPLY + FIELDBASE));
+                if (message.ReadReply == true)
+                    sw_Out.Write(TRUE);
+                else
+                    sw_Out.Write(FALSE);
+            }
+            // ---------------- MESSAGE CLASS ---------
+            if (message.IsMessageClassAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_CLASS + FIELDBASE));
+                sw_Out.Write(message.MessageClass);
+            }
+            // ---------------- EXPIRY ----------------
+            if (message.IsExpiryAvailable)
+            {
+                long secs = message.Expiry.ToUniversalTime().TotalSeconds();
+                var data = EncodeMultiByteNumber(secs);
+                if (data == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("An error occurred encoding the EXPIRY field of the Multimedia Message. The field is set to null");
+                }
+                int nCount = data[0];
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_EXPIRY + FIELDBASE));
+                // Value-length
+                WriteValueLength(nCount + 2, sw_Out);
+                if (message.IsExpiryAbsolute)
+                {
+                    // Absolute-token
+                    sw_Out.Write(TRUE);
+                }
+                else
+                {
+                    // Relative-token
+                    sw_Out.Write(FALSE);
+                }
+                // Date-value or Delta-seconds-value
+                for (int i = 0; i <= nCount; i++)
+                {
+                    sw_Out.Write(data[i]);
+                }
+            }
+            // ---------------- DELIVERY TIME ----------------
+            if (message.IsDeliveryTimeAvailable)
+            {
+                long secs = message.DeliveryTime.ToUniversalTime().TotalSeconds();
+                var data = EncodeMultiByteNumber(secs);
+                if (data == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("The field DELIVERY TIME of the Multimedia Message is set to null.");
+                }
+                int nCount = data[0];
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_DELIVERY_TIME + FIELDBASE));
+                // Value-length
+                WriteValueLength(nCount + 2, sw_Out);
+                if (message.IsDeliveryTimeAbsolute)
+                {
+                    // Absolute-token
+                    sw_Out.Write((byte)TRUE);
+                }
+                else
+                {
+                    // Relative-token
+                    sw_Out.Write((byte)FALSE);
+                }
+                // Date-value or Delta-seconds-value
+                for (int i = 0; i <= nCount; i++)
+                {
+                    sw_Out.Write(data[i]);
+                }
+            }
+            // ---------------- PRIORITY ----------------
+            if (message.IsPriorityAvailable)
+            {
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_PRIORITY + FIELDBASE));
+                sw_Out.Write(message.Priority);
+            }
+            // ---------------- CONTENT TYPE ----------------
+            if (message.IsContentTypeAvailable)
+            {
+                isMultipartRelated = false;
+                sw_Out.Write((byte)(MultimediaMessageConstants.FN_CONTENT_TYPE + FIELDBASE));
+                byte ctype = EncodeContentType(message.ContentType);
+                if (ctype == 0x33)
+                {
+                    // application/vnd.wap.multipart.related
+                    isMultipartRelated = true;
+                    if (!string.IsNullOrWhiteSpace(message.MultipartRelatedType))
+                    {
+                        int valueLength = 1;
+                        String mprt = message.MultipartRelatedType;
+                        valueLength += mprt.Length + 2;
+                        String start = message.PresentationId;
+                        valueLength += start.Length + 2;
+                        // Value-length
+                        WriteValueLength(valueLength, sw_Out);
+                        // Well-known-media
+                        sw_Out.Write((byte)(0x33 + FIELDBASE));
+                        // Parameters
+                        // Type
+                        sw_Out.Write((byte)(0x09 + FIELDBASE));
+                        sw_Out.Write(mprt);
+                        // Start
+                        sw_Out.Write((byte)(0x0A + FIELDBASE));
+                        sw_Out.Write(start);
+                        //sw_Out.Write(0x00);
+                    }
+                    else
+                    {
+                        sw_Out.Write((byte)(ctype + FIELDBASE));
+                    }
+                }
+                else
+                {
+                    if (ctype > 0x00)
+                        sw_Out.Write((byte)(ctype + FIELDBASE));
+                    else
+                    {
+                        sw_Out.Write(message.ContentType);
+                    }
+                }
+            }
+            else
+            {
+                sw_Out.Close();
+                throw new MultimediaMessageEncoderException("The field CONTENT TYPE of the Multimedia Message is not specified.");
+            }
+            // -------------------------- BODY -------------
+            byte nPartsCount = (byte)message.NumContents;
+            sw_Out.Write(nPartsCount);
+            MultimediaMessageContent part = null;
+            for (int i = 0; i < nPartsCount; i++)
+            {
+                part = message.GetContent(i);
+                bool bRetVal = EncodePart(part, sw_Out, isMultipartRelated);
+                if (!bRetVal)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("The entry having Content-id = " + part.ContentId + " cannot be encoded.");
+                }
             }
         }
         /// <summary>
@@ -264,8 +565,6 @@ namespace NokiaMMSLibraryNet
         {
             try
             {
-                bool isMultipartRelated = false;
-
                 using (MultimediaMessageBinaryWriter sw_Out = new MultimediaMessageBinaryWriter(output, System.Text.Encoding.UTF8, true))
                 {
                     if (!message.IsMessageTypeAvailable)
@@ -273,313 +572,14 @@ namespace NokiaMMSLibraryNet
                         sw_Out.Close();
                         throw new MultimediaMessageEncoderException("Invalid Multimedia Message format.");
                     }
-                    byte nMessageType = message.MessageType;
-
                     // TODO: Refactor code duplication
                     switch (message.MessageType)
                     {
                         case MultimediaMessageConstants.MESSAGE_TYPE_M_DELIVERY_IND: // ---------------------------- m-delivery-ind
-                            EncodeDeliveryIndicationMessage(message, sw_Out);
+                            EncodeDeliveryIndication(message, sw_Out);
                             break;
-                        case MultimediaMessageConstants.MESSAGE_TYPE_M_SEND_REQ // ---------------------------- m-send-req
-                        :
-                            int numValue;
-                            String strValue;
-                            // ------------------- MESSAGE TYPE --------
-                            sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
-                            sw_Out.Write(nMessageType);
-                            // ------------------- TRANSACTION ID ------
-                            if (message.IsTransactionIdAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_TRANSACTION_ID + FIELDBASE));
-                                sw_Out.Write(message.TransactionId);
-                            }
-                            // ------------------- VERSION -------------
-                            sw_Out.Write((byte)(MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
-                            if (!message.IsVersionAvailable)
-                            {
-                                numValue = MultimediaMessageConstants.MMS_VERSION_10;
-                            }
-                            else
-                            {
-                                numValue = message.Version;
-                            }
-                            sw_Out.Write((byte)numValue);
-                            // ------------------- DATE ----------------
-                            if (message.IsDateAvailable)
-                            {
-                                long secs = message.Date.ToUniversalTime().TotalSeconds();
-                                var data = EncodeMultiByteNumber(secs);
-                                if (data == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("An error occurred encoding the sending date of the Multimedia Message");
-                                }
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_DATE + FIELDBASE));
-                                byte nCount = data[0];
-                                sw_Out.Write(nCount);
-                                for (byte i = 1; i <= nCount; i++)
-                                {
-                                    sw_Out.Write(data[i]);
-                                }
-                            }
-                            // ------------------- FROM ----------------
-                            if (message.IsFromAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_FROM + FIELDBASE));
-                                strValue = message.From.FullAddress;
-                                if (strValue == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("The field from is assigned to null");
-                                }
-                                // Value-length
-                                WriteValueLength(strValue.Length + 2, sw_Out);
-                                // Address-present-token
-                                sw_Out.Write((byte)TRUE);
-                                // Encoded-string-value
-                                sw_Out.Write(strValue);
-                            }
-                            else
-                            {
-                                // Value-length
-                                sw_Out.Write((byte)1);
-                                sw_Out.Write((byte)FALSE);
-                            }
-                            // ------------------- TO ------------------
-                            if (message.IsToAvailable)
-                            {
-                                List<MultimediaMessageAddress> sAddress = message.To;
-                                int nAddressCount = sAddress.Count;
-                                if (sAddress == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("The field TO of the Multimedia Message is set to null.");
-                                }
-                                for (int i = 0; i < nAddressCount; i++)
-                                {
-                                    strValue = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
-                                    if (strValue != null)
-                                    {
-                                        sw_Out.Write((byte)(MultimediaMessageConstants.FN_TO + FIELDBASE));
-                                        sw_Out.Write(strValue);
-                                    }
-                                }
-                            }
-                            // ------------------- CC ------------------
-                            if (message.IsCcAvailable)
-                            {
-                                List<MultimediaMessageAddress> sAddress = message.Cc;
-                                int nAddressCount = sAddress.Count;
-                                if (sAddress == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("The field CC of the Multimedia Message is set to null.");
-                                }
-                                for (int i = 0; i < nAddressCount; i++)
-                                {
-                                    strValue = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
-                                    if (strValue != null)
-                                    {
-                                        sw_Out.Write((byte)(MultimediaMessageConstants.FN_CC + FIELDBASE));
-                                        sw_Out.Write(strValue);
-                                    }
-                                }
-                            }
-                            // ------------------- BCC ------------------
-                            if (message.IsBccAvailable)
-                            {
-                                List<MultimediaMessageAddress> sAddress = message.Bcc;
-                                int nAddressCount = sAddress.Count;
-                                if (sAddress == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("The field BCC of the Multimedia Message is set to null.");
-                                }
-                                for (int i = 0; i < nAddressCount; i++)
-                                {
-                                    strValue = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
-                                    if (strValue != null)
-                                    {
-                                        sw_Out.Write((byte)(MultimediaMessageConstants.FN_BCC + FIELDBASE));
-                                        sw_Out.Write(strValue);
-                                    }
-                                }
-                            }
-                            if (!(message.IsToAvailable || message.IsCcAvailable || message.IsBccAvailable))
-                            {
-                                sw_Out.Close();
-                                throw new MultimediaMessageEncoderException("No recipient specified in the Multimedia Message.");
-                            }
-                            // ---------------- SUBJECT  --------------
-                            if (message.IsSubjectAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_SUBJECT + FIELDBASE));
-                                if (message.IncludeEncodingInSubject)
-                                    sw_Out.WriteEncodedString(message.Subject);
-                                else 
-                                    sw_Out.Write(message.Subject);
-                            }
-                            // ------------------- DELIVERY-REPORT ----------------
-                            if (message.IsDeliveryReportAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_DELIVERY_REPORT + FIELDBASE));
-                                if (message.DeliveryReport == true)
-                                    sw_Out.Write(TRUE);
-                                else
-                                    sw_Out.Write(FALSE);
-                            }
-                            // ------------------- SENDER-VISIBILITY ----------------
-                            if (message.IsSenderVisibilityAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_SENDER_VISIBILITY + FIELDBASE));
-                                sw_Out.Write(message.SenderVisibility);
-                            }
-                            // ------------------- READ-REPLY ----------------
-                            if (message.IsReadReplyAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_READ_REPLY + FIELDBASE));
-                                if (message.ReadReply == true)
-                                    sw_Out.Write(TRUE);
-                                else
-                                    sw_Out.Write(FALSE);
-                            }
-                            // ---------------- MESSAGE CLASS ---------
-                            if (message.IsMessageClassAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_CLASS + FIELDBASE));
-                                sw_Out.Write(message.MessageClass);
-                            }
-                            // ---------------- EXPIRY ----------------
-                            if (message.IsExpiryAvailable)
-                            {
-                                long secs = message.Expiry.ToUniversalTime().TotalSeconds();
-                                var data = EncodeMultiByteNumber(secs);
-                                if (data == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("An error occurred encoding the EXPIRY field of the Multimedia Message. The field is set to null");
-                                }
-                                int nCount = data[0];
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_EXPIRY + FIELDBASE));
-                                // Value-length
-                                WriteValueLength(nCount + 2, sw_Out);
-                                if (message.IsExpiryAbsolute)
-                                {
-                                    // Absolute-token
-                                    sw_Out.Write(TRUE);
-                                }
-                                else
-                                {
-                                    // Relative-token
-                                    sw_Out.Write(FALSE);
-                                }
-                                // Date-value or Delta-seconds-value
-                                for (int i = 0; i <= nCount; i++)
-                                {
-                                    sw_Out.Write(data[i]);
-                                }
-                            }
-                            // ---------------- DELIVERY TIME ----------------
-                            if (message.IsDeliveryTimeAvailable)
-                            {
-                                long secs = message.DeliveryTime.ToUniversalTime().TotalSeconds();
-                                var data = EncodeMultiByteNumber(secs);
-                                if (data == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("The field DELIVERY TIME of the Multimedia Message is set to null.");
-                                }
-                                int nCount = data[0];
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_DELIVERY_TIME + FIELDBASE));
-                                // Value-length
-                                WriteValueLength(nCount + 2, sw_Out);
-                                if (message.IsDeliveryTimeAbsolute)
-                                {
-                                    // Absolute-token
-                                    sw_Out.Write((byte)TRUE);
-                                }
-                                else
-                                {
-                                    // Relative-token
-                                    sw_Out.Write((byte)FALSE);
-                                }
-                                // Date-value or Delta-seconds-value
-                                for (int i = 0; i <= nCount; i++)
-                                {
-                                    sw_Out.Write(data[i]);
-                                }
-                            }
-                            // ---------------- PRIORITY ----------------
-                            if (message.IsPriorityAvailable)
-                            {
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_PRIORITY + FIELDBASE));
-                                sw_Out.Write(message.Priority);
-                            }
-                            // ---------------- CONTENT TYPE ----------------
-                            if (message.IsContentTypeAvailable)
-                            {
-                                isMultipartRelated = false;
-                                sw_Out.Write((byte)(MultimediaMessageConstants.FN_CONTENT_TYPE + FIELDBASE));
-                                byte ctype = EncodeContentType(message.ContentType);
-                                if (ctype == 0x33)
-                                {
-                                    // application/vnd.wap.multipart.related
-                                    isMultipartRelated = true;
-                                    if (!string.IsNullOrWhiteSpace(message.MultipartRelatedType))
-                                    {
-                                        int valueLength = 1;
-                                        String mprt = message.MultipartRelatedType;
-                                        valueLength += mprt.Length + 2;
-                                        String start = message.PresentationId;
-                                        valueLength += start.Length + 2;
-                                        // Value-length
-                                        WriteValueLength(valueLength, sw_Out);
-                                        // Well-known-media
-                                        sw_Out.Write((byte)(0x33 + FIELDBASE));
-                                        // Parameters
-                                        // Type
-                                        sw_Out.Write((byte)(0x09 + FIELDBASE));
-                                        sw_Out.Write(mprt);
-                                        // Start
-                                        sw_Out.Write((byte)(0x0A + FIELDBASE));
-                                        sw_Out.Write(start);
-                                        //sw_Out.Write(0x00);
-                                    }
-                                    else
-                                    {
-                                        sw_Out.Write((byte)(ctype + FIELDBASE));
-                                    }
-                                }
-                                else
-                                {
-                                    if (ctype > 0x00)
-                                        sw_Out.Write((byte)(ctype + FIELDBASE));
-                                    else
-                                    {
-                                        sw_Out.Write(message.ContentType);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                sw_Out.Close();
-                                throw new MultimediaMessageEncoderException("The field CONTENT TYPE of the Multimedia Message is not specified.");
-                            }
-                            // -------------------------- BODY -------------
-                            byte nPartsCount = (byte)message.NumContents;
-                            sw_Out.Write(nPartsCount);
-                            MultimediaMessageContent part = null;
-                            for (int i = 0; i < nPartsCount; i++)
-                            {
-                                part = message.GetContent(i);
-                                bool bRetVal = EncodePart(part, sw_Out, isMultipartRelated);
-                                if (!bRetVal)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("The entry having Content-id = " + part.ContentId + " cannot be encoded.");
-                                }
-                            }
+                        case MultimediaMessageConstants.MESSAGE_TYPE_M_SEND_REQ: // ---------------------------- m-send-req
+                            EncodeSendMessageRequest(message, sw_Out);
                             break;
                         default:
                             {
