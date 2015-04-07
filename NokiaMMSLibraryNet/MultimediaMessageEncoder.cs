@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 
 namespace NokiaMMSLibraryNet
 {
-    public class MultimediaMessageEncoder
+    public interface IMultimediaMessageEncoder
+    {  
+        void EncodeMessage(MultimediaMessage message, Stream output);
+    }
+
+    public class MultimediaMessageEncoder : IMultimediaMessageEncoder
     {
         private const byte FIELDBASE = 0x80;
         private const byte TRUE = 0x80;
@@ -23,10 +28,10 @@ namespace NokiaMMSLibraryNet
             Reset();
         }
 
-        /**  
-         * Resets the Decoder object.  
-         *  
-         */
+        [Obsolete("Using EncodeMessage(MultimediaMessage message, Stream output) instead will remove need to reset")]
+        /// <summary>
+        /// Resets the Decoder object.
+        /// </summary>
         public void Reset()
         {
             m_Message = null;
@@ -35,9 +40,11 @@ namespace NokiaMMSLibraryNet
             m_Out = null;
         }
 
-        /**  
-         * Sets the Multimedia Message to be encoded.  
-         */
+        [Obsolete("Use EncodeMessage(MultimediaMessage message, Stream output) instead")]
+        /// <summary>
+        /// Sets the Multimedia Message to be encoded.
+        /// </summary>
+        /// <param name="msg">The message to be encoded</param>
         public void SetMessage(MultimediaMessage msg)
         {
             m_Message = msg;
@@ -50,6 +57,7 @@ namespace NokiaMMSLibraryNet
          *  
          * @return the array of bytes representing the Multmedia Message  
          */
+        [Obsolete("Use EncodeMessage(MultimediaMessage message, Stream output) instead")]
         public byte[] GetMessage()
         {
             if (m_bMessageEcoded)
@@ -68,7 +76,6 @@ namespace NokiaMMSLibraryNet
          *  
          * @return assigned number  
          */
-
         private static byte EncodeContentType(string sContentType)
         {
             Dictionary<string, byte> contentTypeMap = new Dictionary<string, byte> {
@@ -164,10 +171,97 @@ namespace NokiaMMSLibraryNet
             }
         }
 
+        private static void EncodeDeliveryIndicationMessage(MultimediaMessage message, MultimediaMessageBinaryWriter sw_Out)
+        {
+            int nVal;
+            string sVal;
+            // ------------------- MESSAGE TYPE --------
+            sw_Out.Write(((byte)MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
+            sw_Out.Write(message.MessageType);
+            // ------------------- MESSAGE ID ------
+            if (message.IsMessageIdAvailable)
+            {
+                sw_Out.Write(((byte)MultimediaMessageConstants.FN_MESSAGE_ID + FIELDBASE));
+                sw_Out.Write(message.MessageId);
+            }
+            else
+            {
+                sw_Out.Close();
+                throw new MultimediaMessageEncoderException("The field Message-ID of the Multimedia Message is null");
+            }
+            // ------------------- VERSION -------------
+            sw_Out.Write(((byte)MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
+            if (!message.IsVersionAvailable)
+            {
+                nVal = MultimediaMessageConstants.MMS_VERSION_10;
+            }
+            else
+            {
+                nVal = message.Version;
+            }
+            sw_Out.Write(nVal);
+            // ------------------- DATE ----------------
+            if (message.IsDateAvailable)
+            {
+                long secs = message.Date.ToUniversalTime().TotalSeconds();
+                var data = EncodeMultiByteNumber(secs);
+                if (data == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("An error occurred encoding the sending date of the Multimedia Message");
+                }
+                sw_Out.Write(((byte)MultimediaMessageConstants.FN_DATE + FIELDBASE));
+                int nCount = data[0];
+                sw_Out.Write(nCount);
+                for (int i = 1; i <= nCount; i++)
+                {
+                    sw_Out.Write(data[i]);
+                }
+            }
+            // ------------------- TO ------------------
+            if (message.IsToAvailable)
+            {
+                var sAddress = message.To;
+                int nAddressCount = sAddress.Count;
+                if (sAddress == null)
+                {
+                    sw_Out.Close();
+                    throw new MultimediaMessageEncoderException("The field TO of the Multimedia Message is set to null.");
+                }
+                for (int i = 0; i < nAddressCount; i++)
+                {
+                    sVal = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
+                    if (sVal != null)
+                    {
+                        sw_Out.Write(((byte)MultimediaMessageConstants.FN_TO + FIELDBASE));
+                        sw_Out.Write(sVal);
+                    }
+                }
+            }
+            else
+            {
+                sw_Out.Close();
+                throw new MultimediaMessageEncoderException("No recipient specified in the Multimedia Message.");
+            }
+            // ------------------- MESSAGE-STATUS ----------------
+            if (message.IsStatusAvailable)
+            {
+                sw_Out.Write(((byte)MultimediaMessageConstants.FN_STATUS + FIELDBASE));
+                sw_Out.Write(message.MessageStatus);
+            }
+            else
+            {
+                sw_Out.Close();
+                throw new MultimediaMessageEncoderException("The field Message-ID of the Multimedia Message is null");
+            }
+        }
+        /// <summary>
+        /// Encodes a MultimediaMessage into a stream.
+        /// </summary>
+        /// <param name="message">The message to be encoded</param>
+        /// <param name="output">The output stream to encode to</param>
         public void EncodeMessage(MultimediaMessage message, Stream output)
         {
-            int numValue;
-            String strValue;
             try
             {
                 bool isMultipartRelated = false;
@@ -182,92 +276,15 @@ namespace NokiaMMSLibraryNet
                     byte nMessageType = message.MessageType;
 
                     // TODO: Refactor code duplication
-                    switch (nMessageType)
+                    switch (message.MessageType)
                     {
-                        case MultimediaMessageConstants.MESSAGE_TYPE_M_DELIVERY_IND // ---------------------------- m-delivery-ind
-                        :
-                            // ------------------- MESSAGE TYPE --------
-                            sw_Out.Write(((byte)MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
-                            sw_Out.Write(nMessageType);
-                            // ------------------- MESSAGE ID ------
-                            if (message.IsMessageIdAvailable)
-                            {
-                                sw_Out.Write(((byte)MultimediaMessageConstants.FN_MESSAGE_ID + FIELDBASE));
-                                sw_Out.Write(message.MessageId);
-                            }
-                            else
-                            {
-                                sw_Out.Close();
-                                throw new MultimediaMessageEncoderException("The field Message-ID of the Multimedia Message is null");
-                            }
-                            // ------------------- VERSION -------------
-                            sw_Out.Write(((byte)MultimediaMessageConstants.FN_MMS_VERSION + FIELDBASE));
-                            if (!message.IsVersionAvailable)
-                            {
-                                numValue = MultimediaMessageConstants.MMS_VERSION_10;
-                            }
-                            else
-                            {
-                                numValue = message.Version;
-                            }
-                            sw_Out.Write(numValue);
-                            // ------------------- DATE ----------------
-                            if (message.IsDateAvailable)
-                            {
-                                long secs = message.Date.ToUniversalTime().TotalSeconds();
-                                var data = EncodeMultiByteNumber(secs);
-                                if (data == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("An error occurred encoding the sending date of the Multimedia Message");
-                                }
-                                sw_Out.Write(((byte)MultimediaMessageConstants.FN_DATE + FIELDBASE));
-                                int nCount = data[0];
-                                sw_Out.Write(nCount);
-                                for (int i = 1; i <= nCount; i++)
-                                {
-                                    sw_Out.Write(data[i]);
-                                }
-                            }
-                            // ------------------- TO ------------------
-                            if (message.IsToAvailable)
-                            {
-                                var sAddress = message.To;
-                                int nAddressCount = sAddress.Count;
-                                if (sAddress == null)
-                                {
-                                    sw_Out.Close();
-                                    throw new MultimediaMessageEncoderException("The field TO of the Multimedia Message is set to null.");
-                                }
-                                for (int i = 0; i < nAddressCount; i++)
-                                {
-                                    strValue = ((MultimediaMessageAddress)sAddress[i]).FullAddress;
-                                    if (strValue != null)
-                                    {
-                                        sw_Out.Write(((byte)MultimediaMessageConstants.FN_TO + FIELDBASE));
-                                        sw_Out.Write(strValue);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                sw_Out.Close();
-                                throw new MultimediaMessageEncoderException("No recipient specified in the Multimedia Message.");
-                            }
-                            // ------------------- MESSAGE-STATUS ----------------
-                            if (message.IsStatusAvailable)
-                            {
-                                sw_Out.Write(((byte)MultimediaMessageConstants.FN_STATUS + FIELDBASE));
-                                sw_Out.Write(message.MessageStatus);
-                            }
-                            else
-                            {
-                                sw_Out.Close();
-                                throw new MultimediaMessageEncoderException("The field Message-ID of the Multimedia Message is null");
-                            }
+                        case MultimediaMessageConstants.MESSAGE_TYPE_M_DELIVERY_IND: // ---------------------------- m-delivery-ind
+                            EncodeDeliveryIndicationMessage(message, sw_Out);
                             break;
                         case MultimediaMessageConstants.MESSAGE_TYPE_M_SEND_REQ // ---------------------------- m-send-req
                         :
+                            int numValue;
+                            String strValue;
                             // ------------------- MESSAGE TYPE --------
                             sw_Out.Write((byte)(MultimediaMessageConstants.FN_MESSAGE_TYPE + FIELDBASE));
                             sw_Out.Write(nMessageType);
@@ -580,9 +597,11 @@ namespace NokiaMMSLibraryNet
                 throw new MultimediaMessageEncoderException("An IO error occurred encoding the Multimedia Message.");
             }
         }
-        /**   
-                 * Encodes the Multimedia Message set by calling setMessage(MMMessage msg)   
-                 */
+        
+        /// <summary>
+        /// Encodes the Multimedia Message set by calling setMessage(MultimediaMessage msg)   
+        /// </summary>
+        [Obsolete("Use EncodeMessage(MultimediaMessage message, Stream output) instead")]
         public void EncodeMessage()
         {
             m_Out = new MemoryStream();
