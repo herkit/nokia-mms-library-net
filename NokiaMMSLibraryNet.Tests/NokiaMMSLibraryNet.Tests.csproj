@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Decoding_tests.cs" />
     <Compile Include="Encoding_tests.cs" />
+    <Compile Include="Extension_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -378,12 +378,12 @@ namespace NokiaMMSLibraryNet
                         break;
                     case MultimediaMessageConstants.FN_STATUS:
                         if (FLAG_DEBUG) Console.Out.WriteLine("FN_STATUS (15)");
-                        m_Message.MessageStatus = m_In[m_i];
+                        m_Message.MessageStatus = (MultimediaMessageStatus)m_In[m_i];
                         m_i++;
                         break;
                     case MultimediaMessageConstants.FN_MMS_VERSION:
                         if (FLAG_DEBUG) Console.Out.WriteLine("FN_MMS_VERSION (0D)");
-                        m_Message.Version = m_In[m_i];
+                        m_Message.Version = (MultimediaMessageVersion)m_In[m_i];
                         m_i++;
                         break;
                     case MultimediaMessageConstants.FN_TO:

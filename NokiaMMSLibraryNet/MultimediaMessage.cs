@@ -39,7 +39,7 @@ namespace NokiaMMSLibraryNet
         private byte hMessageType;
         private string hTransactionId = "";
         private string hMessageId = "";
-        private byte hVersion = 0;
+        private MultimediaMessageVersion hVersion = 0;
         private List<MultimediaMessageAddress> hTo = null;
         private List<MultimediaMessageAddress> hCc = null;
         private List<MultimediaMessageAddress> hBcc = null;
@@ -54,7 +54,7 @@ namespace NokiaMMSLibraryNet
         private DateTime hDeliveryTime;
         private byte hPriority;
         private string hContentType = "";
-        private byte hStatus;
+        private MultimediaMessageStatus hStatus;
 
 
         /* Others variables */
@@ -388,7 +388,7 @@ namespace NokiaMMSLibraryNet
          * 
          * param value the message Status. 
          */
-        public byte MessageStatus
+        public MultimediaMessageStatus MessageStatus
         {
             get
             {
@@ -434,8 +434,8 @@ namespace NokiaMMSLibraryNet
          */
         public string GetVersionAsString()
         {
-            int ver_major = ((byte)(hVersion << 1)) >> 5;
-            int ver_minor = ((byte)(hVersion << 4)) >> 4;
+            int ver_major = ((byte)((byte)hVersion << 1)) >> 5;
+            int ver_minor = ((byte)((byte)hVersion << 4)) >> 4;
             string result = ver_major + "." + ver_minor;
 
             return result;
@@ -452,7 +452,7 @@ namespace NokiaMMSLibraryNet
          * param value the only supported value are  
          * IMMConstants.MMS_VERSION_10 and IMMConstants.MMS_VERSION_11 
          */
-        public byte Version
+        public MultimediaMessageVersion Version
         {
             get
             {

@@ -35,5 +35,15 @@ namespace NokiaMMSLibraryNet
             base.Write(_encoding.GetBytes(value));
             base.Write((byte)0x00);
         }
+
+        public void WriteEncodedString(string value)
+        {
+            var bytes = _encoding.GetBytes(value);
+            var mib = _encoding.GetMIBEnum() + 0x80;
+            base.Write((byte)((bytes.Length + 2) % 256));
+            base.Write((byte)(mib));
+            base.Write(bytes);
+            base.Write((byte)0x00);
+        }
     }
 }
