@@ -87,4 +87,13 @@ namespace NokiaMMSLibraryNet
         Version10 = 0x90,
         Version11 = 0x91,
     }
+
+    public enum MultimediaMessageStatus : byte
+    {
+        EXPIRED = 0x80,
+        RETRIEVED = 0x81,
+        REJECTED = 0x82,
+        DEFERRED = 0x83,
+        UNRECOGNISED = 0x84,
+    }
 }
